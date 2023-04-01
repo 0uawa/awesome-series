@@ -60,6 +60,7 @@ let series: SerieType[] = [
 ];
 
 server.get("/series", async (request, reply) => {
+  console.log("debut");
   return series.map((serie) => {
     const { actors, ...rest } = serie;
     return rest;
@@ -86,12 +87,14 @@ server.post<{
 });
 
 server.post<{
-  Body: SerieType;
+  Params: { id: string };
 }>("/series/:id/fav", async (request, reply) => {
   series.map((serie) =>
-    serie.id === request.body.id ? (serie.isFav = !serie.isFav) : serie
+    serie.id === Number(request.params.id)
+      ? (serie.isFav = !serie.isFav)
+      : serie
   );
-  console.log(request.body.id);
+  console.log(Number(request.params.id));
   return series;
 });
 

@@ -1,14 +1,3 @@
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 import { fastify } from "fastify";
 import cors from "@fastify/cors";
 const server = fastify({
@@ -63,8 +52,9 @@ let series = [
     },
 ];
 server.get("/series", async (request, reply) => {
+    console.log("debut");
     return series.map((serie) => {
-        const { actors } = serie, rest = __rest(serie, ["actors"]);
+        const { actors, ...rest } = serie;
         return rest;
     });
 });
@@ -78,12 +68,14 @@ server.get("/series/:id", async (request, reply) => {
     return s;
 });
 server.post("/series/add", async (request, reply) => {
-    series.push(Object.assign(Object.assign({}, request.body), { id: series.length }));
+    series.push({ ...request.body, id: series.length });
     return series;
 });
 server.post("/series/:id/fav", async (request, reply) => {
-    series.map((serie) => serie.id === request.body.id ? (serie.isFav = !serie.isFav) : serie);
-    console.log(request.body.id);
+    series.map((serie) => serie.id === Number(request.params.id)
+        ? (serie.isFav = !serie.isFav)
+        : serie);
+    console.log(Number(request.params.id));
     return series;
 });
 const start = async () => {
@@ -97,3 +89,4 @@ const start = async () => {
     }
 };
 start();
+//# sourceMappingURL=index.js.map

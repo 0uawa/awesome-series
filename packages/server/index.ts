@@ -10,50 +10,53 @@ await server.register(cors, {
 type SerieType = {
   id: number;
   title: string;
-  annee: number;
+  year: number;
   isFav: boolean;
   actors: string[];
 };
+
+export type SerieWithoutIdType = Omit<SerieType, "id">;
+
 let series: SerieType[] = [
   {
     id: 0,
     title: "onePiece",
-    annee: 2000,
+    year: 2000,
     isFav: true,
     actors: ["aaev", "bveava", "cveav"],
   },
   {
     id: 1,
     title: "breaking Bad",
-    annee: 2001,
+    year: 2001,
     isFav: false,
     actors: ["aveav", "dvav", "reav"],
   },
   {
     id: 2,
     title: "the Walking Dead",
-    annee: 2002,
+    year: 2002,
     isFav: false,
     actors: ["baba", "cvcav", "zvaev"],
   },
   {
     id: 3,
     title: "Casa de Papel",
-    annee: 2003,
+    year: 2003,
     isFav: false,
     actors: ["bveav", "cvaev", "veavz"],
   },
   {
     id: 4,
     title: "Suits",
-    annee: 2004,
+    year: 2004,
     isFav: false,
     actors: ["eez", "cre", "ztet"],
   },
   {
     id: 5,
     title: "Brooklyn 99",
-    annee: 2005,
+    year: 2005,
     isFav: false,
     actors: ["taev", "pveav", "zavev"],
   },
@@ -80,9 +83,15 @@ server.get<{ Params: { id: string } }>(
 );
 
 server.post<{
-  Body: SerieType;
+  Body: string;
 }>("/series/add", async (request, reply) => {
-  series.push({ ...request.body, id: series.length });
+  const serie = JSON.parse(request.body) as SerieType;
+
+  if (series.find((s) => s.title === serie.title)) {
+    console.log("test");
+    return;
+  }
+  series.push({ ...serie, id: series.length });
   return series;
 });
 

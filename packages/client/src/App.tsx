@@ -1,13 +1,18 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Serie } from "./Serie";
+import { CreateSerie, Form, SerieWithoutIdType } from "./Form";
 
 export type SerieType = {
   id: number;
   title: string;
-  annee: number;
+  year: number;
   isFav: boolean;
-  actors: string[];
 };
 
 function App() {
@@ -37,6 +42,26 @@ function App() {
     console.log("click");
     setSelectdedSerie(serie);
   };
+
+  const queryClient = useQueryClient();
+
+  const mutationAdd = useMutation({
+    mutationFn: (serie: CreateSerie) => {
+      console.log(serie);
+      return fetch("http://localhost:3000/series/add", {
+        method: "POST",
+        body: JSON.stringify(serie),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["series"] });
+    },
+  });
+
+  const clickAdd = (serie: CreateSerie) => {
+    serie.title && mutationAdd.mutate(serie);
+  };
+
   if (error) {
     return <p>Error bro lol</p>;
   }
@@ -49,8 +74,10 @@ function App() {
   }
 
   return (
-    <div className="App min-h-screen bg-slate-800 text-white ">
-      <div className="grid grid-cols-5 gap-4">
+    <div className="App p-20 min-h-screen bg-slate-800 text-white ">
+      <h1 className="text-3xl mb-3">Mes series</h1>
+      <input className="rounded-lg p-2 bg-slate-200" placeholder="Rechercher" />
+      <div className="p-10 grid grid-cols-5 gap-4">
         {data.map((serie) => (
           <Serie
             onClick={() => clickSerie(serie)}
@@ -59,7 +86,10 @@ function App() {
           ></Serie>
         ))}
       </div>
-      {isSerieSuccess && <Serie serie={serie}></Serie>}
+      <div className="flex justify-center">
+        {isSerieSuccess && <Serie serie={serie}></Serie>}
+      </div>
+      <Form onclick={clickAdd} />
     </div>
   );
 }
